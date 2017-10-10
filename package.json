@@ -3,11 +3,11 @@
   "version": "0.1.1",
   "description": "Makes a cors-request by Phantomjs",
   "dependencies": {
-    "phantomjs": "~1.9.7-1",
-    "node-phantom-simple": "~1.1.0"
+    "phantomjs": "^2.1.7",
+    "node-phantom-simple": "^2.2.4"
   },
   "engines": {
-    "node": "~0.10.20"
+    "node": "~8.0.0"
   },
   "main": "cors-tester.js",
   "scripts": {
@@ -24,8 +24,8 @@
   },
   "homepage": "https://github.com/RedBulli/cors-tester",
   "devDependencies": {
+    "chai": "~1.9.0",
     "express": "~3.4.8",
-    "mocha": "~1.17.1",
-    "chai": "~1.9.0"
+    "mocha": "~1.17.1"
   }
 }

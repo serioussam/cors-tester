@@ -20,21 +20,20 @@ module.exports.makeCorsRequest = function(configParam, callbackParam) {
 function makeRequest(config, callback) {
   var phantom = require('node-phantom-simple');
   var params = {
-    phantomPath: require('phantomjs').path
+    path: require('phantomjs').path
   };
-  phantom.create(create, params);
 
-  function create(err, ph) {
-    if (err) {
-      callback(err);
-    } else {
-      singleTest(ph, config, function(networkEvents) {
-        ph.exit();
-        var returnObject = returnObjectLib.getReturnObjectFromXhrNetworkEvents(config.url, networkEvents);
-        callback(returnObject);
-      });
-    }
-  }
+  phantom.create(params, function (err, ph) {
+      if (err) {
+          callback(err);
+      } else {
+          singleTest(ph, config, function(networkEvents) {
+              ph.exit();
+              var returnObject = returnObjectLib.getReturnObjectFromXhrNetworkEvents(config.url, networkEvents);
+              callback(returnObject);
+          });
+      }
+  });
 }
 
 function singleTest(ph, config, callback) {
@@ -47,25 +46,23 @@ function singleTest(ph, config, callback) {
     errors: [],
     timeouts: []
   };
-  ph.createPage(openPage);
+  ph.createPage(function (err, page) {
+      page.open(url);
 
-  function openPage(err, page) {
-    page.open(url);
+      page.onResourceError = function(resourceError) {
+          networkEvents.errors.push(resourceError);
+      };
+      page.onResourceRequested = function(requestData, networkRequest) {
+          networkEvents.requests.push(requestData);
+      };
 
-    page.onResourceError = function(resourceError) {
-      networkEvents.errors.push(resourceError);
-    };
-    page.onResourceRequested = function(requestData, networkRequest) {
-      networkEvents.requests.push(requestData);
-    };
+      page.onResourceReceived = function(response) {
+          networkEvents.responses.push(response);
+      };
 
-    page.onResourceReceived = function(response) {
-      networkEvents.responses.push(response);
-    };
-
-    page.onLoadFinished = function(status) {
-      server.close();
-      callback(networkEvents);
-    };
-  }
+      page.onLoadFinished = function(status) {
+          server.close();
+          callback(networkEvents);
+      };
+  });
 }
